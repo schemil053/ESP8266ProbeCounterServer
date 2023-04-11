@@ -1,5 +1,7 @@
 package de.emilschlampp.probecounterserver.util;
 
+import de.emilschlampp.probecounterserver.util.color.ConsoleColor;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
@@ -23,7 +25,7 @@ public class ConsoleUtil {
     private static Scanner in;
 
     public static String nextLine() {
-        System.out.print(System.getProperty("user.name")+"@"+hostname+"#ProbeCounter:~");
+        System.out.print(ConsoleColor.RED +System.getProperty("user.name")+ConsoleColor.YELLOW+"@"+ConsoleColor.LIGHT_CYAN+hostname+"#ProbeCounter:~"+ConsoleColor.RESET);
         return in.nextLine();
     }
 }

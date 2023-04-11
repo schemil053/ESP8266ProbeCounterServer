@@ -1,20 +1,23 @@
 package de.emilschlampp.probecounterserver.client;
 
+import de.emilschlampp.probecounterserver.setup.SetupWindow;
 import de.emilschlampp.probecounterserver.util.EJFrame;
 import de.emilschlampp.probecounterserver.util.Room;
 import de.emilschlampp.probecounterserver.util.SConfig;
+import de.emilschlampp.probecounterserver.util.color.ConsoleColor;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class ClientMain implements Runnable {
     @Override
@@ -26,6 +29,19 @@ public class ClientMain implements Runnable {
 
         frame.setVisible(true);
 
+        try {
+            frame.setIconImage(ImageIO.read(Objects.requireNonNull(SetupWindow.class.getResourceAsStream("/icon.png"))));
+        } catch (Exception ignored) {
+            System.err.println("Icon konnte nicht geladen werden.");
+        }
+
+        frame.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                loadBG(frame);
+            }
+        });
+
         List<Room> roomList = new ArrayList<>();
 
         frame.addKeyListener(new KeyAdapter() {
@@ -33,6 +49,23 @@ public class ClientMain implements Runnable {
             public void keyPressed(KeyEvent e) {
                 if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     frame.dispose();
+                }
+                if(e.getKeyCode() == KeyEvent.VK_F11) {
+                    if(frame.getExtendedState() == Frame.MAXIMIZED_BOTH) {
+                        frame.setExtendedState(Frame.NORMAL);
+                        frame.setSize(500, 400);
+                        frame.update();
+                        frame.dispose();
+                        frame.setUndecorated(false);
+                        frame.setVisible(true);
+                        loadBG(frame);
+                    } else {
+                        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+                        frame.dispose();
+                        frame.setUndecorated(true);
+                        frame.setVisible(true);
+                        loadBG(frame);
+                    }
                 }
             }
         });
@@ -71,13 +104,13 @@ public class ClientMain implements Runnable {
                     stream.println(roomList.size()+"");
 
                     for(Room roomA : roomList) {
-                        stream.println(roomA);
+                        stream.println(roomA.getName());
                         int line = Integer.parseInt(scanner.nextLine());
                         rooms.put(roomA.getName(), line);
-                        System.out.println(roomA+";;;"+line);
+                        System.out.println(ConsoleColor.BG_LIGHT_GREEN +roomA.getName()+";;;"+line);
                     }
                     rooms.forEach((a, b) -> {
-                        System.out.println("A+"+a+" "+b);
+                        System.out.println(ConsoleColor.BG_LIGHT_GREEN+"A+"+a+" "+b);
                     });
                 } catch (Exception exception) {
                     exception.printStackTrace();
@@ -107,6 +140,13 @@ public class ClientMain implements Runnable {
             g.setFont(defaultf);
         });
 
+        loadBG(frame);
+
+
+    }
+
+    private void loadBG(EJFrame frame) {
+        SConfig config = SConfig.getSConfig("config.econf");
         new Thread(() -> {
             try {
                 Thread.sleep(100);
@@ -115,7 +155,7 @@ public class ClientMain implements Runnable {
             }
             try {
                 BufferedImage image = new BufferedImage(frame.getWidth(), frame.getHeight(), BufferedImage.TYPE_INT_RGB);
-                image.getGraphics().drawImage(ImageIO.read(new File("icon.png")).getScaledInstance(frame.getWidth(), frame.getHeight(), Image.SCALE_SMOOTH),
+                image.getGraphics().drawImage(ImageIO.read(new File(config.getString("background"))).getScaledInstance(frame.getWidth(), frame.getHeight(), Image.SCALE_SMOOTH),
                         0,0,null);
                 frame.setBackground(image);
             } catch (Exception ex) {
