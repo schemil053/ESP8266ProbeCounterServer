@@ -11,7 +11,7 @@ public class Launcher {
     public static void main(String[] args) throws Throwable {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         SConfig config = SConfig.getSConfig("config.econf");
-        if(!config.getFile().isFile()) {
+        if((!config.getFile().isFile()) || (!System.getProperty("setup", "?").equals("?"))) {
             SetupWindow.startSetup();
             return;
         }

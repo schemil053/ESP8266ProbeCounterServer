@@ -1,6 +1,6 @@
 # ESP8266 ProbeCounterServer  
 **Ein Server für [ESP8266ProbeCounter](https://github.com/schemil053/ESP8266ProbeCounter)**
-**Aktuell kaum Funkion!!**
+**Aktuell keine Funkion!!**  
 
 ## Einrichtung  
 Es gibt eine GUI, welche sich beim ersten start öffnet.  

@@ -1,12 +1,11 @@
 package de.emilschlampp.probecounterserver.util;
 
+import de.emilschlampp.probecounterserver.client.ClientMain;
+import de.emilschlampp.probecounterserver.server.ServerMain;
+
 public enum Mode {
-    SERVER(() -> {
-
-    }),
-    CLIENT(() -> {
-
-    }),
+    SERVER(new ServerMain()),
+    CLIENT(new ClientMain()),
     BOTH(() -> {
         new Thread(() -> {
             Mode.CLIENT.init();

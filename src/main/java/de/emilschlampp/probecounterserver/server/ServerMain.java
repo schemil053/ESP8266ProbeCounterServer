@@ -33,6 +33,7 @@ public class ServerMain implements Runnable {
                         handleClient(socket);
                         socket.close();
                     } catch (Throwable e) {
+                        e.printStackTrace();
                         try {
                             socket.close();
                         } catch (Exception ignored) {
@@ -56,7 +57,9 @@ public class ServerMain implements Runnable {
         String ver = scanner.nextLine();
 
         if(ver.startsWith("WiFiProbe V0.1")) {
-            map.put(scanner.nextLine(), Integer.parseInt(scanner.nextLine()));
+            String p = scanner.nextLine();
+            map.put(p, Integer.parseInt(scanner.nextLine()));
+            System.out.println(p+";"+map.getOrDefault(p, 0));
         } else if(ver.startsWith("WiFiProbeClient V0.1")) {
             int access = Integer.parseInt(scanner.nextLine());
             for(int i = 0; i<access; i++) {
