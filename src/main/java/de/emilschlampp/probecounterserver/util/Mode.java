@@ -28,4 +28,12 @@ public enum Mode {
     public void init() {
         runnable.run();
     }
+
+    public boolean hasServer() {
+        return this.name().equals("SERVER") || this.name().equals("BOTH");
+    }
+
+    public boolean hasClient() {
+        return this.name().equals("CLIENT") || this.name().equals("BOTH");
+    }
 }

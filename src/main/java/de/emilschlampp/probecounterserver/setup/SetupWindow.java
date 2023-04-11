@@ -6,10 +6,12 @@ import de.emilschlampp.probecounterserver.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Scanner;
@@ -61,17 +63,19 @@ public class SetupWindow {
 
             JButton testbutton = new JButton("Vollbild-Testfenster (Für Koordinaten)");
 
-            JCheckBox box = new JCheckBox("Vollbild");
+            JCheckBox fullscreenbox = new JCheckBox("Vollbild");
 
-            JTextArea area = new JTextArea(8, 20);
+            JTextArea roomArea = new JTextArea(8, 20);
 
-            area.setPreferredSize(new Dimension(200, 100));
+            roomArea.setPreferredSize(new Dimension(200, 100));
 
-            JTextField textField = new JTextField();
+            JTextField backgroundField = new JTextField();
+            JTextField portField = new JTextField();
+            JTextField ipField = new JTextField();
 
-            area.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            roomArea.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-            JComboBox mode = new JComboBox(Arrays.stream(Mode.values()).map(Enum::name).collect(Collectors.toList()).toArray());
+            JComboBox modeBox = new JComboBox(Arrays.stream(Mode.values()).map(Enum::name).collect(Collectors.toList()).toArray());
 
 
             File file = new File("rooms.speedconf");
@@ -86,7 +90,7 @@ public class SetupWindow {
                         }
                         text = text+"\n"+line;
                     }
-                    area.setText(text.replaceFirst("\n", ""));
+                    roomArea.setText(text.replaceFirst("\n", ""));
                 } catch (Throwable ignored) {
 
                 }
@@ -104,14 +108,14 @@ public class SetupWindow {
             gbc.gridy = 1;
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.anchor = GridBagConstraints.WEST;
-            frame.add(textField, gbc);
+            frame.add(backgroundField, gbc);
 
             gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridy = 2;
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.anchor = GridBagConstraints.WEST;
-            frame.add(box, gbc);
+            frame.add(fullscreenbox, gbc);
 
             gbc = new GridBagConstraints();
             gbc.gridx = 0;
@@ -132,25 +136,53 @@ public class SetupWindow {
             gbc.gridy = 5;
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.anchor = GridBagConstraints.WEST;
-            frame.add(area, gbc);
+            frame.add(roomArea, gbc);
 
             gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridy = 6;
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.anchor = GridBagConstraints.WEST;
-            frame.add(mode, gbc);
+            frame.add(new JLabel("IP:Port"), gbc);
 
             gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridy = 7;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.anchor = GridBagConstraints.WEST;
+            frame.add(ipField, gbc);
+
+            gbc = new GridBagConstraints();
+            gbc.gridx = 0;
+            gbc.gridy = 8;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.anchor = GridBagConstraints.WEST;
+            frame.add(modeBox, gbc);
+
+            gbc = new GridBagConstraints();
+            gbc.gridx = 0;
+            gbc.gridy = 9;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.anchor = GridBagConstraints.WEST;
+            frame.add(new JLabel("Port"), gbc);
+
+            gbc = new GridBagConstraints();
+            gbc.gridx = 0;
+            gbc.gridy = 10;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.anchor = GridBagConstraints.WEST;
+            frame.add(portField, gbc);
+
+            gbc = new GridBagConstraints();
+            gbc.gridx = 0;
+            gbc.gridy = 11;
             gbc.fill = GridBagConstraints.NONE;
             gbc.anchor = GridBagConstraints.CENTER;
             frame.add(button, gbc);
 
             gbc = new GridBagConstraints();
             gbc.gridx = 0;
-            gbc.gridy = 8;
+            gbc.gridy = 12;
             gbc.fill = GridBagConstraints.NONE;
             gbc.anchor = GridBagConstraints.CENTER;
             frame.add(testbutton, gbc);
@@ -173,10 +205,99 @@ public class SetupWindow {
             button.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    config.set("mode", (String) mode.getSelectedItem());
-                    config.set("fullscreen", box.isSelected());
-                    config.set("background", textField.getText());
+                    String modes = (String) modeBox.getSelectedItem();
+
+                    Mode mode = Mode.valueOf(modes);
+                    if(mode.equals(Mode.UNKNOWN)) {
+                        return;
+                    }
+                    // TODO: 11.04.2023 Validierung
+                    config.set("mode", modes);
+
+                    if(mode.hasClient()) {
+                        config.set("fullscreen", fullscreenbox.isSelected());
+                        config.set("background", backgroundField.getText());
+                        config.set("ip", ipField.getText());
+                    }
+
+                    if(mode.hasServer()) {
+                        config.set("port", Integer.parseInt(portField.getText()));
+                    }
+
+                    try {
+                        FileWriter writer = new FileWriter("rooms.speedconf");
+                        for (String s : roomArea.getText().split("\n")) {
+                            if(s.equals("")) {
+                                continue;
+                            }
+                            writer.write(s+"\n");
+                        }
+                        writer.flush();
+                        writer.close();
+                    } catch (IOException ex) {
+
+                    }
+
                     config.save();
+
+                    frame.dispose();
+
+                    try {
+                        Launcher.main(new String[0]);
+                    } catch (Throwable ex) {
+
+                    }
+                }
+            });
+            testbutton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    EJFrame testFrame = new EJFrame("Full Test");
+                    if(fullscreenbox.isSelected()) {
+                        testFrame.setResizable(false);
+                        testFrame.setUndecorated(true);
+                        testFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
+                    }
+
+                    testFrame.setVisible(true);
+                    testFrame.addKeyListener(new KeyAdapter() {
+                        @Override
+                        public void keyPressed(KeyEvent e) {
+                            if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                                testFrame.dispose();
+                            }
+                        }
+                    });
+
+                    testFrame.addRenderL(c -> {
+                        if(testFrame.getMousePosition() != null) {
+                            c.setColor(Color.RED);
+                            c.drawString("X: "+testFrame.getMousePosition().x+" Y: "+testFrame.getMousePosition().y, 10, 10);
+                        }
+                    });
+
+                    testFrame.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mousePressed(MouseEvent e) {
+                            roomArea.append("\n"+e.getPoint().x+";"+e.getPoint().getY());
+                        }
+                    });
+
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException ignored) {
+
+                        }
+                        try {
+                            BufferedImage image = new BufferedImage(testFrame.getWidth(), testFrame.getHeight(), BufferedImage.TYPE_INT_RGB);
+                            image.getGraphics().drawImage(ImageIO.read(new File(backgroundField.getText())).getScaledInstance(testFrame.getWidth(), testFrame.getHeight(), Image.SCALE_SMOOTH),
+                                    0,0,null);
+                            testFrame.setBackground(image);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }).start();
                 }
             });
         }
