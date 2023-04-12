@@ -2,24 +2,21 @@ package de.emilschlampp.probecounterserver.util;
 
 import de.emilschlampp.probecounterserver.client.ClientMain;
 import de.emilschlampp.probecounterserver.server.ServerMain;
+import de.emilschlampp.probecounterserver.util.lang.Translation;
 
 public enum Mode {
     SERVER(new ServerMain()),
     CLIENT(new ClientMain()),
     BOTH(() -> {
-        new Thread(() -> {
-            Mode.CLIENT.init();
-        }).start();
-        new Thread(() -> {
-            Mode.SERVER.init();
-        }).start();
+        new Thread(Mode.CLIENT::init).start();
+        new Thread(Mode.SERVER::init).start();
     }),
     UNKNOWN(() -> {
-        System.err.println("Mode not found, stopping...");
+        System.err.println(new Translation("mode.notFound"));
         System.exit(1);
     });
 
-    private Runnable runnable;
+    private final Runnable runnable;
     Mode(Runnable runnable) {
         this.runnable = runnable;
     }

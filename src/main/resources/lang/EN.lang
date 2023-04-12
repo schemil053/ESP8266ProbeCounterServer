@@ -1,0 +1,62 @@
+=icon.Error
+An error occurred while trying to load the icon.
+#
+=window.title
+SchemilESPWiFiProbeCounter
+=window.fullTest
+Fullscreen-Test
+=window.saveAndApply
+Save and Apply
+=window.testWindow
+Fullscreen-Testwindow
+=window.fullScreen
+Fullscreen
+=window.backGroundImage
+Background
+=window.guiRooms
+GUI-Rooms
+=window.guiRooms.decl
+X;Y;ROOM;TYPE-SIZE
+=window.guiRooms.example
+0.2;0.4;Room1;20
+=window.ipAndPort
+IP:Port
+=window.checkTime
+Check-Time (in Seconds)
+=window.port
+Port
+#
+=window.setup.invalidPort
+The port is not a valid port! Please check!
+=window.setup.invalidBackGround
+The background you entered does not exists. Please check!
+=window.setup.invalidIP
+The ip is not valid! Please check!
+=window.setup.invalidCheckTime
+The check-time is not a valid number! Please check!
+=window.startError
+An error occurred while trying to start.
+=window.testNoClient
+Please use the client!
+=mode.notFound
+Mode not found, stopping...
+#
+=cli.setup.welcome
+Welcome to ESP8266ProbeCounterServer.
+You are now in the Setup.
+Because you likely not have a graphical user-interface to display data, you only can setup the server.
+Please enter the Port of your server:
+=cli.invalidPort
+Setup cancelled. Please enter a valid port.
+=cli.portSetAndServerStarts
+Port set. Starting server...
+=cli.startError
+An error occurred while trying to start the server:
+#
+=hostName.unknown
+unknown
+#
+=colors.testing
+Testing colors...
+=colors.test
+This is a Test

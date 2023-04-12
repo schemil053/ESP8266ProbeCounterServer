@@ -1,6 +1,8 @@
 package de.emilschlampp.probecounterserver.util.color;
 
 
+import de.emilschlampp.probecounterserver.util.lang.Translation;
+
 public enum ConsoleColor {
     RESET("[0m"),
     NEGATIVE("[7m"),
@@ -73,9 +75,9 @@ public enum ConsoleColor {
     }
 
     public static void testColors() {
-        System.out.println("Testing colors...  ");
+        System.out.println(new Translation("colors.testing"));
         for(ConsoleColor color : ConsoleColor.values()) {
-            System.out.println(color+"This is a Test"+ConsoleColor.RESET);
+            System.out.println(color+new Translation("colors.test").toString()+"_"+color.name()+ConsoleColor.RESET);
         }
     }
 

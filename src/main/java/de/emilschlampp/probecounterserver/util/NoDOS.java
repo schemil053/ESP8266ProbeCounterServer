@@ -6,14 +6,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class NoDOS {
-    private static Map<String, Integer> map = new HashMap<>();
-    private static Map<String, Long> lastpinged = new HashMap<>();
-    private static Map<String,Long> blocked = new HashMap<>();
+    private static final Map<String, Integer> map = new HashMap<>();
+    private static final Map<String, Long> lastpinged = new HashMap<>();
+    private static final Map<String,Long> blocked = new HashMap<>();
 
     private static boolean usedosprotection = true;
 
 
-    private static SConfig config = SConfig.getSConfig("ip-blacklist.econf");
+    private static final SConfig config = SConfig.getSConfig("ip-blacklist.econf");
 
     public static boolean checkDDOS(Socket socket) {
         return checkDDOS(getIP(socket));

@@ -1,5 +1,6 @@
 package de.emilschlampp.probecounterserver;
 
+import de.emilschlampp.probecounterserver.console.ConsoleThread;
 import de.emilschlampp.probecounterserver.setup.SetupWindow;
 import de.emilschlampp.probecounterserver.util.Mode;
 import de.emilschlampp.probecounterserver.util.SConfig;
@@ -8,10 +9,12 @@ import de.emilschlampp.probecounterserver.util.color.SystemUtils;
 import javax.swing.*;
 
 public class Launcher {
+    private static ConsoleThread consoleThread;
     public static void main(String[] args) throws Throwable {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        SConfig config = SConfig.getSConfig("config.econf");
+        SConfig config = getConfig();
 
+        config.setDefault("debug", false, config.getFile().isFile());
         config.setDefault("console-colors", true, config.getFile().isFile());
 
         SystemUtils.init();
@@ -20,7 +23,7 @@ public class Launcher {
             return;
         }
 
-        config.setDefault("mode", Mode.SERVER.name(), true);
+        config.setDefault("mode", Mode.SERVER.name(), config.getFile().isFile());
 
         Mode mode = Mode.UNKNOWN;
 
@@ -29,5 +32,20 @@ public class Launcher {
         } catch (IllegalArgumentException ignored) {}
 
         mode.init();
+
+        if(consoleThread != null) {
+            consoleThread.interrupt();
+        }
+
+        consoleThread = new ConsoleThread();
+        consoleThread.start();
+    }
+
+    public static SConfig getConfig() {
+        return SConfig.getSConfig("config.econf");
+    }
+
+    public static boolean isDebug() {
+        return getConfig().getBoolean("debug");
     }
 }

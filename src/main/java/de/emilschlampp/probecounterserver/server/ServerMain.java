@@ -1,5 +1,7 @@
 package de.emilschlampp.probecounterserver.server;
 
+import de.emilschlampp.probecounterserver.Launcher;
+import de.emilschlampp.probecounterserver.console.ConsoleThread;
 import de.emilschlampp.probecounterserver.util.NoDOS;
 import de.emilschlampp.probecounterserver.util.SConfig;
 import de.emilschlampp.probecounterserver.util.color.ConsoleColor;
@@ -12,7 +14,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class ServerMain implements Runnable {
-    SConfig config = SConfig.getSConfig("config.econf");
+    SConfig config = Launcher.getConfig();
     @Override
     public void run() {
         config.setDefault("port", 29000, true);
@@ -43,7 +45,7 @@ public class ServerMain implements Runnable {
                 }).start();
             }
 
-        } catch (Exception exception) {
+        } catch (Exception ignored) {
 
         }
     }
@@ -59,7 +61,9 @@ public class ServerMain implements Runnable {
         if(ver.startsWith("WiFiProbe V0.1.1")) {
             String p = scanner.nextLine();
             map.put(p, Integer.parseInt(scanner.nextLine()));
-            System.out.println(ConsoleColor.BG_LIGHT_RED +p+";"+map.getOrDefault(p, 0));
+            if(Launcher.isDebug() && ConsoleThread.shouldLog) {
+                System.out.println(ConsoleColor.BG_LIGHT_RED + p + ";" + map.getOrDefault(p, 0));
+            }
         } else if(ver.startsWith("WiFiProbeClient V0.1")) {
             int access = Integer.parseInt(scanner.nextLine());
             for(int i = 0; i<access; i++) {

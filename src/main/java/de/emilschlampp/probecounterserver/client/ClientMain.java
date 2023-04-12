@@ -1,12 +1,16 @@
 package de.emilschlampp.probecounterserver.client;
 
+import de.emilschlampp.probecounterserver.Launcher;
+import de.emilschlampp.probecounterserver.console.ConsoleThread;
 import de.emilschlampp.probecounterserver.setup.SetupWindow;
 import de.emilschlampp.probecounterserver.util.EJFrame;
 import de.emilschlampp.probecounterserver.util.Room;
 import de.emilschlampp.probecounterserver.util.SConfig;
 import de.emilschlampp.probecounterserver.util.color.ConsoleColor;
+import de.emilschlampp.probecounterserver.util.lang.Translation;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -32,7 +36,7 @@ public class ClientMain implements Runnable {
         try {
             frame.setIconImage(ImageIO.read(Objects.requireNonNull(SetupWindow.class.getResourceAsStream("/icon.png"))));
         } catch (Exception ignored) {
-            System.err.println("Icon konnte nicht geladen werden.");
+            System.err.println(new Translation("icon.Error"));
         }
 
         frame.addComponentListener(new ComponentAdapter() {
@@ -49,6 +53,7 @@ public class ClientMain implements Runnable {
             public void keyPressed(KeyEvent e) {
                 if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     frame.dispose();
+                    System.exit(0);
                 }
                 if(e.getKeyCode() == KeyEvent.VK_F11) {
                     if(frame.getExtendedState() == Frame.MAXIMIZED_BOTH) {
@@ -66,9 +71,16 @@ public class ClientMain implements Runnable {
                         frame.setVisible(true);
                         loadBG(frame, null);
                     }
+                    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+                }
+                if(e.getKeyCode() == KeyEvent.VK_F10) {
+                    frame.dispose();
+                    SetupWindow.startSetup();
                 }
             }
         });
+
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         File file = new File("rooms.speedconf");
         if(file.isFile()) {
@@ -88,13 +100,14 @@ public class ClientMain implements Runnable {
             }
         }
 
-        SConfig config = SConfig.getSConfig("config.econf");
+        SConfig config = Launcher.getConfig();
 
         Map<String, Integer> rooms = new HashMap<>();
         new Thread(() -> {
             while (true) {
                 try {
                     rooms.clear();
+                    config.setDefault("ip", "localhost:29000", config.getFile().isFile());
                     Socket socket = new Socket(config.getString("ip").split(":")[0], Integer.parseInt(config.getString("ip").split(":")[1]));
 
                     Scanner scanner = new Scanner(socket.getInputStream());
@@ -107,17 +120,22 @@ public class ClientMain implements Runnable {
                         stream.println(roomA.getName());
                         int line = Integer.parseInt(scanner.nextLine());
                         rooms.put(roomA.getName(), line);
-                        System.out.println(ConsoleColor.BG_LIGHT_GREEN +roomA.getName()+";;;"+line);
+                        if(Launcher.isDebug() && ConsoleThread.shouldLog) {
+                            System.out.println(ConsoleColor.BG_LIGHT_GREEN + roomA.getName() + ";;;" + line);
+                        }
                     }
-                    rooms.forEach((a, b) -> {
-                        System.out.println(ConsoleColor.BG_LIGHT_GREEN+"A+"+a+" "+b);
-                    });
+                    if(Launcher.isDebug() && ConsoleThread.shouldLog) {
+                        rooms.forEach((a, b) -> {
+                            System.out.println(ConsoleColor.BG_LIGHT_GREEN + "A+" + a + " " + b);
+                        });
+                    }
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
                 try {
-                    Thread.sleep(1000*config.getInt("checktime"));
-                } catch (InterruptedException e) {
+                    config.setDefault("checktime", 30, config.getFile().isFile());
+                    Thread.sleep(1000L * config.getInt("checktime"));
+                } catch (InterruptedException ignored) {
 
                 }
             }
@@ -146,7 +164,7 @@ public class ClientMain implements Runnable {
     }
 
     public static void loadBG(EJFrame frame, String bg) {
-        SConfig config = SConfig.getSConfig("config.econf");
+        SConfig config = Launcher.getConfig();
         if(bg == null) {
             bg = config.getString("background");
         }

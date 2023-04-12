@@ -2,15 +2,16 @@ package de.emilschlampp.probecounterserver.setup;
 
 import de.emilschlampp.probecounterserver.Launcher;
 import de.emilschlampp.probecounterserver.client.ClientMain;
+import de.emilschlampp.probecounterserver.console.ConsoleThread;
 import de.emilschlampp.probecounterserver.util.EJFrame;
 import de.emilschlampp.probecounterserver.util.Mode;
 import de.emilschlampp.probecounterserver.util.SConfig;
+import de.emilschlampp.probecounterserver.util.lang.Translation;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,8 +30,8 @@ public class SetupWindow {
     }
 
     private static void startGUISetup() {
-        SConfig config = SConfig.getSConfig("config.econf");
-        EJFrame frame = new EJFrame("SchemilESPWiFiProbeCounter");
+        SConfig config = Launcher.getConfig();
+        EJFrame frame = new EJFrame(new Translation("window.title").toString());
 
         frame.setBackground(Color.WHITE);
 
@@ -39,12 +40,12 @@ public class SetupWindow {
         try {
             frame.setIconImage(ImageIO.read(Objects.requireNonNull(SetupWindow.class.getResourceAsStream("/icon.png"))));
         } catch (Exception ignored) {
-            System.err.println("Icon konnte nicht geladen werden.");
+            System.err.println(new Translation("icon.Error"));
         }
 
-        JButton button = new JButton("Speichern und Anwenden");
-        JButton testbutton = new JButton("Vollbild-Testfenster (Für Koordinaten)");
-        JCheckBox fullscreenbox = new JCheckBox("Vollbild");
+        JButton saveAndApply = new JButton(new Translation("window.saveAndApply").toString());
+        JButton testbutton = new JButton(new Translation("window.testWindow").toString());
+        JCheckBox fullscreenbox = new JCheckBox(new Translation("window.fullScreen").toString());
         JTextArea roomArea = new JTextArea(8, 20);
         roomArea.setPreferredSize(new Dimension(200, 100));
         JTextField backgroundField = new JTextField();
@@ -53,6 +54,24 @@ public class SetupWindow {
         JTextField checkField = new JTextField();
         JComboBox modeBox = new JComboBox(Arrays.stream(Mode.values()).map(Enum::name).collect(Collectors.toList()).toArray());
 
+        if(config.isSet("background")) {
+            backgroundField.setText(config.getString("background"));
+        }
+        if(config.isSet("port")) {
+            portField.setText(config.getString("port"));
+        }
+        if(config.isSet("ip")) {
+            ipField.setText(config.getString("ip"));
+        }
+        if(config.isSet("checktime")) {
+            checkField.setText(config.getString("checktime"));
+        }
+        if(config.isSet("mode")) {
+            modeBox.setSelectedItem(config.getString("mode"));
+        } else {
+            modeBox.setSelectedItem(Mode.BOTH.name());
+        }
+
         fullscreenbox.setSelected(true);
         roomArea.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
@@ -60,48 +79,49 @@ public class SetupWindow {
 
 
         loadLayout(frame,
-                new JLabel("Hintergrundbild"),
+                new JLabel(new Translation("window.backGroundImage").toString()),
                 backgroundField,
 
                 fullscreenbox,
 
-                new JLabel("GUI-Räume"),
-                new JLabel("X;Y;RAUM;SCHRIFTGRÖßE"),
-                new JLabel("0.2;0.4;Raum1;20"),
+                new JLabel(new Translation("window.guiRooms").toString()),
+                new JLabel(new Translation("window.guiRooms.decl").toString()),
+                new JLabel(new Translation("window.guiRooms.example").toString()),
                 roomArea,
 
-                new JLabel("IP:Port"),
+                new JLabel(new Translation("window.ipAndPort").toString()),
                 ipField,
 
-                new JLabel("Checkzeit (in Sekunden)"),
+                new JLabel(new Translation("window.checkTime").toString()),
                 checkField,
 
                 Box.createVerticalStrut(20),
                 modeBox,
                 Box.createVerticalStrut(20),
 
-                new JLabel("Port"),
+                new JLabel(new Translation("window.port").toString()),
                 portField,
 
-                button,
+                saveAndApply,
                 testbutton
         );
 
         frame.setSize(600, 500);
-        //frame.setResizable(false);
 
-        frame.addRenderL(c -> {
-            if(frame.getMousePosition() != null) {
-                c.setColor(Color.RED);
-                c.drawString("X: "+frame.getMousePosition().x+" Y: "+frame.getMousePosition().y, 10, 10);
-            }
-        });
+        if(Launcher.isDebug() && ConsoleThread.shouldLog) {
+            frame.addRenderL(c -> {
+                if (frame.getMousePosition() != null) {
+                    c.setColor(Color.RED);
+                    c.drawString("X: " + frame.getMousePosition().x + " Y: " + frame.getMousePosition().y, 10, 10);
+                }
+            });
+        }
 
         frame.update();
 
         frame.setVisible(true);
 
-        button.addActionListener(new ActionListener() {
+        saveAndApply.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String modes = (String) modeBox.getSelectedItem();
@@ -112,22 +132,32 @@ public class SetupWindow {
                 }
                 config.set("mode", modes);
 
-                if(backgroundField.getText().equals("") || !new File(backgroundField.getText()).isFile()) {
-                    JOptionPane.showMessageDialog(frame, "Bitte überprüfe den eingegebenen Hintergrund!");
-                    return;
-                }
-                try{
-                   Integer.parseInt(ipField.getText().split(":", 2)[1]);
-                } catch (Exception exception) {
-                    JOptionPane.showMessageDialog(frame, "Bitte überprüfe die eingegebene IP!");
-                    return;
-                }
+                if(mode.hasClient()) {
+                    if (backgroundField.getText().equals("") || !new File(backgroundField.getText()).isFile()) {
+                        JOptionPane.showMessageDialog(frame, new Translation("window.setup.invalidBackGround").toString());
+                        return;
+                    }
+                    try {
+                        Integer.parseInt(ipField.getText().split(":", 2)[1]);
+                    } catch (Exception exception) {
+                        JOptionPane.showMessageDialog(frame, new Translation("window.setup.invalidIP").toString());
+                        return;
+                    }
 
-                try {
-                    Integer.parseInt(checkField.getText());
-                } catch (Exception exception) {
-                    JOptionPane.showMessageDialog(frame, "Bitte überprüfe die eingegebene Checkzeit!");
-                    return;
+                    try {
+                        Integer.parseInt(checkField.getText());
+                    } catch (Exception exception) {
+                        JOptionPane.showMessageDialog(frame, new Translation("window.setup.invalidCheckTime").toString());
+                        return;
+                    }
+                }
+                if(mode.hasServer()) {
+                    try {
+                        Integer.parseInt(portField.getText());
+                    } catch (Exception exception) {
+                        JOptionPane.showMessageDialog(frame, new Translation("window.setup.invalidPort").toString());
+                        return;
+                    }
                 }
 
                 if(mode.hasClient()) {
@@ -162,7 +192,7 @@ public class SetupWindow {
                 try {
                     Launcher.main(new String[0]);
                 } catch (Throwable ex) {
-                    System.err.println("Beim starten ist ein Fehler aufgetreten:");
+                    System.err.println(new Translation("window.startError"));
                     ex.printStackTrace();
                 }
             }
@@ -170,28 +200,43 @@ public class SetupWindow {
         testbutton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                EJFrame testFrame = new EJFrame("Full Test");
-
-                if(backgroundField.getText().equals("") || !new File(backgroundField.getText()).isFile()) {
-                    JOptionPane.showMessageDialog(frame, "Bitte überprüfe den eingegebenen Hintergrund!");
+                String modes = (String) modeBox.getSelectedItem();
+                Mode mode = Mode.valueOf(modes);
+                if(!mode.hasClient()) {
+                    JOptionPane.showMessageDialog(frame, new Translation("window.testNoClient"));
                     return;
                 }
-                try{
-                    Integer.parseInt(ipField.getText().split(":", 2)[1]);
-                } catch (Exception exception) {
-                    JOptionPane.showMessageDialog(frame, "Bitte überprüfe die eingegebene IP!");
-                    return;
-                }
+                EJFrame testFrame = new EJFrame(new Translation("window.fullTest").toString());
 
-                try {
-                    Integer.parseInt(checkField.getText());
-                } catch (Exception exception) {
-                    JOptionPane.showMessageDialog(frame, "Bitte überprüfe die eingegebene Checkzeit!");
-                    return;
+                if(mode.hasClient()) {
+                    if (backgroundField.getText().equals("") || !new File(backgroundField.getText()).isFile()) {
+                        JOptionPane.showMessageDialog(frame, new Translation("window.setup.invalidBackGround").toString());
+                        return;
+                    }
+                    try {
+                        Integer.parseInt(ipField.getText().split(":", 2)[1]);
+                    } catch (Exception exception) {
+                        JOptionPane.showMessageDialog(frame, new Translation("window.setup.invalidIP").toString());
+                        return;
+                    }
+
+                    try {
+                        Integer.parseInt(checkField.getText());
+                    } catch (Exception exception) {
+                        JOptionPane.showMessageDialog(frame, new Translation("window.setup.invalidCheckTime").toString());
+                        return;
+                    }
+                }
+                if(mode.hasServer()) {
+                    try {
+                        Integer.parseInt(portField.getText());
+                    } catch (Exception exception) {
+                        JOptionPane.showMessageDialog(frame, new Translation("window.setup.invalidPort").toString());
+                        return;
+                    }
                 }
 
                 if(fullscreenbox.isSelected()) {
-                    testFrame.setResizable(false);
                     testFrame.setUndecorated(true);
                     testFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
                 }
@@ -211,13 +256,13 @@ public class SetupWindow {
                                 testFrame.dispose();
                                 testFrame.setUndecorated(false);
                                 testFrame.setVisible(true);
-                                ClientMain.loadBG(testFrame, null);
+                                ClientMain.loadBG(testFrame, backgroundField.getText());
                             } else {
                                 testFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
                                 testFrame.dispose();
                                 testFrame.setUndecorated(true);
                                 testFrame.setVisible(true);
-                                ClientMain.loadBG(testFrame, null);
+                                ClientMain.loadBG(testFrame, backgroundField.getText());
                             }
                         }
                     }
@@ -226,39 +271,23 @@ public class SetupWindow {
                 testFrame.addComponentListener(new ComponentAdapter() {
                     @Override
                     public void componentResized(ComponentEvent e) {
-                        ClientMain.loadBG(frame, null);
+                        ClientMain.loadBG(testFrame, backgroundField.getText());
                     }
                 });
 
                 testFrame.addRenderL(c -> {
                     if(testFrame.getMousePosition() != null) {
                         c.setColor(Color.RED);
-                        c.drawString("X: "+testFrame.getMousePosition().x+" Y: "+testFrame.getMousePosition().y+" ("+((double) testFrame.getMousePosition().x/testFrame.getWidth())+";"+((double) testFrame.getMousePosition().y/testFrame.getHeight())+")", 10, 20);
+                        c.drawString("X: "+testFrame.getMousePosition().x+" Y: "+testFrame.getMousePosition().y+" ("+((double) testFrame.getMousePosition().x/testFrame.getWidth())+";"+((double) testFrame.getMousePosition().y/testFrame.getHeight())+")", 10, 30);
                     }
                 });
 
                 testFrame.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mousePressed(MouseEvent e) {
-                        roomArea.append("\n"+((double) e.getPoint().x/testFrame.getWidth())+";"+((double) e.getPoint().y/testFrame.getHeight()));
+                        roomArea.append((roomArea.getText().equals("") ? "" : "\n")+((double) e.getPoint().x/testFrame.getWidth())+";"+((double) e.getPoint().y/testFrame.getHeight()));
                     }
                 });
-
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException ignored) {
-
-                    }
-                    try {
-                        BufferedImage image = new BufferedImage(testFrame.getWidth(), testFrame.getHeight(), BufferedImage.TYPE_INT_RGB);
-                        image.getGraphics().drawImage(ImageIO.read(new File(backgroundField.getText())).getScaledInstance(testFrame.getWidth(), testFrame.getHeight(), Image.SCALE_SMOOTH),
-                                0,0,null);
-                        testFrame.setBackground(image);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                }).start();
             }
         });
     }

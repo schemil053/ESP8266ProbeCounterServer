@@ -1,6 +1,6 @@
 package de.emilschlampp.probecounterserver.util.color;
 
-import de.emilschlampp.probecounterserver.util.SConfig;
+import de.emilschlampp.probecounterserver.Launcher;
 
 public class SystemUtils {
     public enum OS {
@@ -39,7 +39,7 @@ public class SystemUtils {
                 accept = true;
             }
         }
-        return accept && SConfig.getSConfig("config.econf").getBoolean("console-colors");
+        return accept && Launcher.getConfig().getBoolean("console-colors");
     }
 
     private static boolean i = false;

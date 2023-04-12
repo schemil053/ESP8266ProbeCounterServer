@@ -1,0 +1,69 @@
+=icon.Error
+Icon konnte nicht geladen werden.
+#
+=window.title
+SchemilESPWiFiProbeCounter
+=window.fullTest
+Vollbild-Test
+=window.saveAndApply
+Speichern und Anwenden
+=window.testWindow
+Vollbild-Testfenster (Für Koordinaten)
+=window.fullScreen
+Vollbild
+=window.backGroundImage
+Hintergrundbild
+=window.guiRooms
+GUI-Räume
+=window.guiRooms.decl
+X;Y;RAUM;SCHRIFTGRÖßE
+=window.guiRooms.example
+0.2;0.4;Raum1;20
+=window.ipAndPort
+IP:Port
+=window.checkTime
+Checkzeit (in Sekunden)
+=window.port
+Port
+#
+=window.setup.invalidPort
+Bitte überprüfe den eingegebenen Port!
+=window.setup.invalidBackGround
+Bitte überprüfe den eingegebenen Hintergrund!
+=window.setup.invalidIP
+Bitte überprüfe die eingegebene IP!
+=window.setup.invalidCheckTime
+Bitte überprüfe die eingegebene Checkzeit!
+=window.startError
+Beim starten ist ein Fehler aufgetreten:
+=window.testNoClient
+Bitte verwende den Client!
+=mode.notFound
+Modus nicht gefunden, stoppe...
+#
+=cli.setup.welcome
+Willkommen bei ESP8266ProbeCounterServer
+Du befindest dich im Einrichtungsmodus.
+Weil du scheinbar keine grafische Nutzeroberfläche hast, kannst du nur den Server einrichten.
+Bitte gebe den Port des Servers ein:
+=cli.invalidPort
+Setup abgebrochen. Bitte gebe einen validen Port an.
+=cli.portSetAndServerStarts
+Port wurde gesetzt. Der Server wird gestartet.
+=cli.startError
+Beim starten des Servers ist ein Problem aufgetreten:
+#
+=hostName.unknown
+Unbekannt
+#
+=colors.testing
+Teste Farben...
+=colors.test
+Dies ist ein Test
+#
+=console.choose
+Wähle deine Konsole zwischen %light_red%client %reset%oder %light_red%server.
+=console.command.notFound
+Befehl % nicht gefunden!
+=console.command.error
+Beim ausführen des Befehls % ist ein Fehler aufgetreten:

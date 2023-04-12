@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 public class SConfig {
-    private static Map<String, SConfig> stringsConfigHashMap = new HashMap<>();
+    private static final Map<String, SConfig> stringsConfigHashMap = new HashMap<>();
     public static SConfig getSConfig(String name) {
         if(stringsConfigHashMap.get(name) == null) {
             stringsConfigHashMap.put(name, new SConfig(new File(name)));
@@ -39,9 +39,9 @@ public class SConfig {
         return new ArrayList<>(comments);
     }
 
-    private Map<String, String> data = new HashMap<>();
-    private File file;
-    private List<String> comments = new ArrayList<>();
+    private final Map<String, String> data = new HashMap<>();
+    private final File file;
+    private final List<String> comments = new ArrayList<>();
     private String name;
 
     public SConfig(File file) {

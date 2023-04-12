@@ -12,7 +12,7 @@ public class ColorInjector {
         if(SystemUtils.getOS().equals(SystemUtils.OS.WINDOWS)) {
             try {
                 Runtime.getRuntime().exec("reg add HKEY_CURRENT_USER\\Console /v VirtualTerminalLevel /t REG_DWORD /d 0x00000001 /f");
-            } catch (Exception e) {
+            } catch (Exception ignored) {
 
             }
         }
@@ -49,11 +49,9 @@ public class ColorInjector {
             }
             public void print(String s) {
                 String y = s;
+                y = ConsoleColor.LIGHT_RED+y+ConsoleColor.RESET;
                 if(!SystemUtils.acceptColors()) {
                     y = ConsoleColor.stripColor(y);
-                }
-                if(ConsoleColor.containsColor(y)) {
-                    y = y+ConsoleColor.RESET;
                 }
                 super.print(y);
             }

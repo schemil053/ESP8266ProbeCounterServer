@@ -11,13 +11,13 @@ import java.util.function.Consumer;
 
 public class EJFrame extends JFrame {
     public EJFrame() {
-        this("");
+        this("EJFrame");
     }
 
     private BufferedImage background = null;
-    private List<Consumer<Graphics>> a = new ArrayList<>();
-    private List<Consumer<Graphics>> b = new ArrayList<>();
-    private JComponent component;
+    private final List<Consumer<Graphics>> a = new ArrayList<>();
+    private final List<Consumer<Graphics>> b = new ArrayList<>();
+    private final JComponent component;
 
     public void setBG(Color color) {
         BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -39,7 +39,7 @@ public class EJFrame extends JFrame {
                 }
                 a.forEach(s -> { try {
                     s.accept(g);
-                } catch (Exception exception){}});
+                } catch (Exception ignored){}});
             }
 
             @Override
@@ -47,7 +47,7 @@ public class EJFrame extends JFrame {
                 super.update(g);
                 a.forEach(s -> { try {
                     s.accept(g);
-                } catch (Exception exception){}});
+                } catch (Exception ignored){}});
             }
 
             @Override
@@ -55,7 +55,7 @@ public class EJFrame extends JFrame {
                 super.paint(g);
                 a.forEach(s -> { try {
                     s.accept(g);
-                } catch (Exception exception){}});
+                } catch (Exception ignored){}});
             }
 
             @Override
@@ -63,7 +63,7 @@ public class EJFrame extends JFrame {
                 super.print(g);
                 a.forEach(s -> { try {
                     s.accept(g);
-                } catch (Exception exception){}});
+                } catch (Exception ignored){}});
             }
         };
         this.component = component;
@@ -73,7 +73,7 @@ public class EJFrame extends JFrame {
                 if(a.isEmpty()) {
                     try {
                         Thread.sleep(500);
-                    } catch (InterruptedException e) {
+                    } catch (InterruptedException ignored) {
 
                     }
                     continue;
@@ -82,7 +82,7 @@ public class EJFrame extends JFrame {
                 Arrays.stream(getComponents()).filter(component::equals).forEach(Component::repaint);
                 try {
                     Thread.sleep(50);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignored) {
 
                 }
             }
