@@ -38,7 +38,7 @@ public class ClientMain implements Runnable {
         frame.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                loadBG(frame);
+                loadBG(frame, null);
             }
         });
 
@@ -58,13 +58,13 @@ public class ClientMain implements Runnable {
                         frame.dispose();
                         frame.setUndecorated(false);
                         frame.setVisible(true);
-                        loadBG(frame);
+                        loadBG(frame, null);
                     } else {
                         frame.setExtendedState(Frame.MAXIMIZED_BOTH);
                         frame.dispose();
                         frame.setUndecorated(true);
                         frame.setVisible(true);
-                        loadBG(frame);
+                        loadBG(frame, null);
                     }
                 }
             }
@@ -80,8 +80,8 @@ public class ClientMain implements Runnable {
                         continue;
                     }
                     String[] linesplit = line.split(";");
-                    roomList.add(new Room(Integer.parseInt(linesplit[0]),
-                            Integer.parseInt(linesplit[1]), Integer.parseInt(linesplit[3]), linesplit[2]));
+                    roomList.add(new Room(Double.parseDouble(linesplit[0]),
+                            Double.parseDouble(linesplit[1]), Integer.parseInt(linesplit[3]), linesplit[2]));
                 }
             } catch (Throwable ignored) {
 
@@ -135,18 +135,22 @@ public class ClientMain implements Runnable {
                     g.setFont(defaultf);
                 }
 
-                g.drawString(rooms.get(room.getName())+"", room.getX(), room.getY());
+                g.drawString(rooms.get(room.getName())+"", room.getXForFrame(frame.getWidth()), room.getYForFrame(frame.getHeight()));
             }
             g.setFont(defaultf);
         });
 
-        loadBG(frame);
+        loadBG(frame, null);
 
 
     }
 
-    private void loadBG(EJFrame frame) {
+    public static void loadBG(EJFrame frame, String bg) {
         SConfig config = SConfig.getSConfig("config.econf");
+        if(bg == null) {
+            bg = config.getString("background");
+        }
+        String finalBg = bg;
         new Thread(() -> {
             try {
                 Thread.sleep(100);
@@ -155,7 +159,7 @@ public class ClientMain implements Runnable {
             }
             try {
                 BufferedImage image = new BufferedImage(frame.getWidth(), frame.getHeight(), BufferedImage.TYPE_INT_RGB);
-                image.getGraphics().drawImage(ImageIO.read(new File(config.getString("background"))).getScaledInstance(frame.getWidth(), frame.getHeight(), Image.SCALE_SMOOTH),
+                image.getGraphics().drawImage(ImageIO.read(new File(finalBg)).getScaledInstance(frame.getWidth(), frame.getHeight(), Image.SCALE_SMOOTH),
                         0,0,null);
                 frame.setBackground(image);
             } catch (Exception ex) {

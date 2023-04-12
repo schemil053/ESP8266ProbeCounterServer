@@ -1,6 +1,7 @@
 package de.emilschlampp.probecounterserver.setup;
 
 import de.emilschlampp.probecounterserver.Launcher;
+import de.emilschlampp.probecounterserver.client.ClientMain;
 import de.emilschlampp.probecounterserver.util.EJFrame;
 import de.emilschlampp.probecounterserver.util.Mode;
 import de.emilschlampp.probecounterserver.util.SConfig;
@@ -65,6 +66,7 @@ public class SetupWindow {
 
                 new JLabel("GUI-Räume"),
                 new JLabel("X;Y;RAUM;SCHRIFTGRÖßE"),
+                new JLabel("0.2;0.4;Raum1;20"),
                 roomArea,
 
                 new JLabel("IP:Port"),
@@ -81,8 +83,8 @@ public class SetupWindow {
                 testbutton
         );
 
-        frame.setSize(300, 500);
-        frame.setResizable(false);
+        frame.setSize(600, 500);
+        //frame.setResizable(false);
 
         frame.addRenderL(c -> {
             if(frame.getMousePosition() != null) {
@@ -159,20 +161,44 @@ public class SetupWindow {
                         if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                             testFrame.dispose();
                         }
+                        if(e.getKeyCode() == KeyEvent.VK_F11) {
+                            if(testFrame.getExtendedState() == Frame.MAXIMIZED_BOTH) {
+                                testFrame.setExtendedState(Frame.NORMAL);
+                                testFrame.setSize(500, 400);
+                                testFrame.update();
+                                testFrame.dispose();
+                                testFrame.setUndecorated(false);
+                                testFrame.setVisible(true);
+                                ClientMain.loadBG(testFrame, null);
+                            } else {
+                                testFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
+                                testFrame.dispose();
+                                testFrame.setUndecorated(true);
+                                testFrame.setVisible(true);
+                                ClientMain.loadBG(testFrame, null);
+                            }
+                        }
+                    }
+                });
+
+                testFrame.addComponentListener(new ComponentAdapter() {
+                    @Override
+                    public void componentResized(ComponentEvent e) {
+                        ClientMain.loadBG(frame, null);
                     }
                 });
 
                 testFrame.addRenderL(c -> {
                     if(testFrame.getMousePosition() != null) {
                         c.setColor(Color.RED);
-                        c.drawString("X: "+testFrame.getMousePosition().x+" Y: "+testFrame.getMousePosition().y, 10, 10);
+                        c.drawString("X: "+testFrame.getMousePosition().x+" Y: "+testFrame.getMousePosition().y+" ("+((double) testFrame.getMousePosition().x/testFrame.getWidth())+";"+((double) testFrame.getMousePosition().y/testFrame.getHeight())+")", 10, 20);
                     }
                 });
 
                 testFrame.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mousePressed(MouseEvent e) {
-                        roomArea.append("\n"+e.getPoint().x+";"+e.getPoint().getY());
+                        roomArea.append("\n"+((double) e.getPoint().x/testFrame.getWidth())+";"+((double) e.getPoint().y/testFrame.getHeight()));
                     }
                 });
 
@@ -238,6 +264,11 @@ public class SetupWindow {
             gbc.gridy = gridy;
             gbc.fill = GridBagConstraints.NONE;
             gbc.anchor = GridBagConstraints.CENTER;
+            if(component instanceof JTextField || component instanceof JTextArea) {
+                gbc.anchor = GridBagConstraints.WEST;
+                gbc.fill = GridBagConstraints.HORIZONTAL;
+                gbc.weightx = 1.0;
+            }
             frame.add(component, gbc);
             gridy++;
         }
