@@ -106,8 +106,18 @@ public class SetupWindow {
                 if(mode.equals(Mode.UNKNOWN)) {
                     return;
                 }
-                // TODO: 11.04.2023 Validierung
                 config.set("mode", modes);
+
+                if(backgroundField.getText().equals("") || !new File(backgroundField.getText()).isFile()) {
+                    JOptionPane.showMessageDialog(frame, "Bitte überprüfe den eingegebenen Hintergrund!");
+                    return;
+                }
+                try{
+                   Integer.parseInt(ipField.getText().split(":", 2)[1]);
+                } catch (Exception exception) {
+                    JOptionPane.showMessageDialog(frame, "Bitte überprüfe die eingegebene IP!");
+                    return;
+                }
 
                 if(mode.hasClient()) {
                     config.set("fullscreen", fullscreenbox.isSelected());
@@ -148,6 +158,18 @@ public class SetupWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 EJFrame testFrame = new EJFrame("Full Test");
+
+                if(backgroundField.getText().equals("") || !new File(backgroundField.getText()).isFile()) {
+                    JOptionPane.showMessageDialog(frame, "Bitte überprüfe den eingegebenen Hintergrund!");
+                    return;
+                }
+                try{
+                    Integer.parseInt(ipField.getText().split(":", 2)[1]);
+                } catch (Exception exception) {
+                    JOptionPane.showMessageDialog(frame, "Bitte überprüfe die eingegebene IP!");
+                    return;
+                }
+
                 if(fullscreenbox.isSelected()) {
                     testFrame.setResizable(false);
                     testFrame.setUndecorated(true);
