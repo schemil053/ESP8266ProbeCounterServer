@@ -50,6 +50,7 @@ public class SetupWindow {
         JTextField backgroundField = new JTextField();
         JTextField portField = new JTextField();
         JTextField ipField = new JTextField();
+        JTextField checkField = new JTextField();
         JComboBox modeBox = new JComboBox(Arrays.stream(Mode.values()).map(Enum::name).collect(Collectors.toList()).toArray());
 
         fullscreenbox.setSelected(true);
@@ -71,6 +72,9 @@ public class SetupWindow {
 
                 new JLabel("IP:Port"),
                 ipField,
+
+                new JLabel("Checkzeit (in Sekunden)"),
+                checkField,
 
                 Box.createVerticalStrut(20),
                 modeBox,
@@ -119,10 +123,18 @@ public class SetupWindow {
                     return;
                 }
 
+                try {
+                    Integer.parseInt(checkField.getText());
+                } catch (Exception exception) {
+                    JOptionPane.showMessageDialog(frame, "Bitte überprüfe die eingegebene Checkzeit!");
+                    return;
+                }
+
                 if(mode.hasClient()) {
                     config.set("fullscreen", fullscreenbox.isSelected());
                     config.set("background", backgroundField.getText());
                     config.set("ip", ipField.getText());
+                    config.set("checktime", Integer.parseInt(checkField.getText()));
                 }
 
                 if(mode.hasServer()) {
@@ -139,7 +151,7 @@ public class SetupWindow {
                     }
                     writer.flush();
                     writer.close();
-                } catch (IOException ex) {
+                } catch (IOException ignored) {
 
                 }
 
@@ -150,7 +162,8 @@ public class SetupWindow {
                 try {
                     Launcher.main(new String[0]);
                 } catch (Throwable ex) {
-
+                    System.err.println("Beim starten ist ein Fehler aufgetreten:");
+                    ex.printStackTrace();
                 }
             }
         });
@@ -167,6 +180,13 @@ public class SetupWindow {
                     Integer.parseInt(ipField.getText().split(":", 2)[1]);
                 } catch (Exception exception) {
                     JOptionPane.showMessageDialog(frame, "Bitte überprüfe die eingegebene IP!");
+                    return;
+                }
+
+                try {
+                    Integer.parseInt(checkField.getText());
+                } catch (Exception exception) {
+                    JOptionPane.showMessageDialog(frame, "Bitte überprüfe die eingegebene Checkzeit!");
                     return;
                 }
 

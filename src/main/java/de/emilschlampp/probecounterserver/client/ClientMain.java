@@ -116,7 +116,7 @@ public class ClientMain implements Runnable {
                     exception.printStackTrace();
                 }
                 try {
-                    Thread.sleep(1000*30);
+                    Thread.sleep(1000*config.getInt("checktime"));
                 } catch (InterruptedException e) {
 
                 }

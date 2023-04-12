@@ -12,7 +12,6 @@ public class Launcher {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         SConfig config = SConfig.getSConfig("config.econf");
 
-
         config.setDefault("console-colors", true, config.getFile().isFile());
 
         SystemUtils.init();
