@@ -60,3 +60,16 @@ unknown
 Testing colors...
 =colors.test
 This is a Test
+#
+=console.choose
+Choose your console between %light_red%client %reset%or %light_red%server.
+=console.command.notFound
+Command % not found!
+=console.command.error
+An error occurred while trying to execute the command %. Error:
+=command.listdevices.help
+%light_magenta%listdevices <room>%reset%
+%red%listrooms%light_yellow% for a list of rooms.%reset%
+#
+=server.newClient
+New client: %
