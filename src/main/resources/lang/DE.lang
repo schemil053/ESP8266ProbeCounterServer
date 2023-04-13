@@ -67,3 +67,9 @@ Wähle deine Konsole zwischen %light_red%client %reset%oder %light_red%server.
 Befehl % nicht gefunden!
 =console.command.error
 Beim ausführen des Befehls % ist ein Fehler aufgetreten:
+=command.listdevices.help
+%light_magenta%listdevices <Raum>%reset%
+%red%listrooms%light_yellow% für eine Liste an Räumen.%reset%
+#
+=server.newClient
+Neuer Client: %

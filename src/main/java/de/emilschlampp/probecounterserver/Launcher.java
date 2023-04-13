@@ -10,6 +10,7 @@ import javax.swing.*;
 
 public class Launcher {
     private static ConsoleThread consoleThread;
+    private static Mode mode = Mode.UNKNOWN;
     public static void main(String[] args) throws Throwable {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         SConfig config = getConfig();
@@ -25,7 +26,6 @@ public class Launcher {
 
         config.setDefault("mode", Mode.SERVER.name(), config.getFile().isFile());
 
-        Mode mode = Mode.UNKNOWN;
 
         try {
             mode = Mode.valueOf(config.getString("mode"));
@@ -47,5 +47,9 @@ public class Launcher {
 
     public static boolean isDebug() {
         return getConfig().getBoolean("debug");
+    }
+
+    public static Mode getMode() {
+        return mode;
     }
 }

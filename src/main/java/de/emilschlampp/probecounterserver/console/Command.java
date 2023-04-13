@@ -10,5 +10,5 @@ public abstract class Command {
         return name;
     }
 
-    public abstract void run();
+    public abstract void run(String[] args);
 }

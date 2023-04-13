@@ -1,6 +1,9 @@
 package de.emilschlampp.probecounterserver.console;
 
 import de.emilschlampp.probecounterserver.Launcher;
+import de.emilschlampp.probecounterserver.console.impl.StopCommand;
+import de.emilschlampp.probecounterserver.console.impl.server.ListDevicesCommand;
+import de.emilschlampp.probecounterserver.console.impl.server.ListRoomsCommand;
 import de.emilschlampp.probecounterserver.util.ConsoleUtil;
 import de.emilschlampp.probecounterserver.util.Mode;
 import de.emilschlampp.probecounterserver.util.SConfig;
@@ -12,8 +15,8 @@ public class ConsoleThread extends Thread {
 
     public static boolean shouldLog = true;
 
-    private static Map<String, Command> clientCommandMap = new HashMap<>();
-    private static Map<String, Command> serverCommandMap = new HashMap<>();
+    private static final Map<String, Command> clientCommandMap = new HashMap<>();
+    private static final Map<String, Command> serverCommandMap = new HashMap<>();
 
 
     @Override
@@ -53,7 +56,7 @@ public class ConsoleThread extends Thread {
                             String[] split = command.split(" ");
                             if(serverCommandMap.containsKey(split[0])) {
                                 try {
-                                    serverCommandMap.get(split[0]).run();
+                                    serverCommandMap.get(split[0]).run(removeFirstElement(split));
                                 } catch (Throwable throwable) {
                                     System.err.println(new Translation("console.command.error").format(split[0]));
                                     throwable.printStackTrace();
@@ -71,7 +74,7 @@ public class ConsoleThread extends Thread {
                             String[] split = command.split(" ");
                             if(clientCommandMap.containsKey(split[0])) {
                                 try {
-                                    clientCommandMap.get(split[0]).run();
+                                    clientCommandMap.get(split[0]).run(removeFirstElement(split));
                                 } catch (Throwable throwable) {
                                     System.err.println(new Translation("console.command.error").format(split[0]));
                                     throwable.printStackTrace();
@@ -84,6 +87,26 @@ public class ConsoleThread extends Thread {
                 }
             }
         }
+    }
+
+    public static void registerServer(Command command){
+        serverCommandMap.put(command.getName(), command);
+    }
+
+    public static void registerClient(Command command){
+        clientCommandMap.put(command.getName(), command);
+    }
+
+    public static void registerBoth(Command command) {
+        registerClient(command);
+        registerServer(command);
+    }
+
+    static {
+        registerBoth(new StopCommand());
+
+        registerServer(new ListDevicesCommand());
+        registerServer(new ListRoomsCommand());
     }
 
     private static String[] removeFirstElement(String[] arr) {

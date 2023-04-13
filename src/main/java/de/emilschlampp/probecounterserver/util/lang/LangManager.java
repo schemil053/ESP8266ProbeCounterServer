@@ -28,7 +28,7 @@ public class LangManager {
             return;
         }
         String lang = "DE";
-        Launcher.getConfig().setDefault("lang", "DE", Launcher.getConfig().getFile().isFile());
+        Launcher.getConfig().setDefault("language", "DE", Launcher.getConfig().getFile().isFile());
         if(Launcher.getConfig().isSet("language")) {
             lang = Launcher.getConfig().getString("language");
         }

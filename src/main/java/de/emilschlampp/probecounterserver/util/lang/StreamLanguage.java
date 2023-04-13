@@ -53,6 +53,16 @@ public class StreamLanguage implements Language {
                 }
                 currentval = currentval+(currentval.equals("") ? "" : "\n")+line;
             }
+            if(!currentkey.equals("")) {
+                for(ConsoleColor color : ConsoleColor.values()) {
+                    currentval = currentval.replace("%"+(color.name().toUpperCase())+"%", color.toString());
+                    currentval = currentval.replace("%"+(color.name().toLowerCase())+"%", color.toString());
+                }
+                if(ConsoleColor.containsColor(currentval)) {
+                    currentval = currentval+ConsoleColor.RESET;
+                }
+                data.put(currentkey, currentval);
+            }
         } catch (Throwable ignored) {
             ignored.printStackTrace();
         }
