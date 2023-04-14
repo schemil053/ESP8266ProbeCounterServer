@@ -153,7 +153,7 @@ public class ClientMain implements Runnable {
                     g.setFont(defaultf);
                 }
 
-                g.drawString(rooms.get(room.getName())+"", room.getXForFrame(frame.getWidth()), room.getYForFrame(frame.getHeight()));
+                g.drawString(rooms.getOrDefault(room.getName(), 0)+"", room.getXForFrame(frame.getWidth()), room.getYForFrame(frame.getHeight()));
             }
             g.setFont(defaultf);
         });
