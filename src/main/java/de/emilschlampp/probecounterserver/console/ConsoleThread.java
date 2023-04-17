@@ -1,22 +1,31 @@
 package de.emilschlampp.probecounterserver.console;
 
 import de.emilschlampp.probecounterserver.Launcher;
-import de.emilschlampp.probecounterserver.console.impl.StopCommand;
+import de.emilschlampp.probecounterserver.console.impl.both.ClearCommand;
+import de.emilschlampp.probecounterserver.console.impl.both.StopCommand;
 import de.emilschlampp.probecounterserver.console.impl.server.ListDevicesCommand;
 import de.emilschlampp.probecounterserver.console.impl.server.ListRoomsCommand;
 import de.emilschlampp.probecounterserver.util.ConsoleUtil;
 import de.emilschlampp.probecounterserver.util.Mode;
 import de.emilschlampp.probecounterserver.util.SConfig;
+import de.emilschlampp.probecounterserver.util.color.ConsoleColor;
 import de.emilschlampp.probecounterserver.util.lang.Translation;
 
 import java.util.*;
 
 public class ConsoleThread extends Thread {
-
     public static boolean shouldLog = true;
 
     private static final Map<String, Command> clientCommandMap = new HashMap<>();
     private static final Map<String, Command> serverCommandMap = new HashMap<>();
+
+    static {
+        registerBoth(new StopCommand());
+        registerBoth(new ClearCommand());
+
+        registerServer(new ListDevicesCommand());
+        registerServer(new ListRoomsCommand());
+    }
 
 
     @Override
@@ -33,55 +42,101 @@ public class ConsoleThread extends Thread {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             shouldLog = true;
-            String line = scanner.nextLine();
+            String line = "?";
+            try {
+                line = scanner.nextLine();
+            } catch (Exception exception) {
+                System.err.println(new Translation("console.not.available"));
+                continue;
+            }
+
+
+            if(!mode.hasClient() && !mode.hasServer()) {
+                System.err.println(new Translation("console.not.available"));
+                continue;
+            }
 
             if(line.equals("")) {
                 shouldLog = false;
+                boolean serv = false;
                 if(mode.hasClient() && mode.hasServer()) {
-                    boolean serv = false;
                     while (true) {
                         System.out.println(new Translation("console.choose"));
                         String console = ConsoleUtil.nextLine("console");
-                        if(Arrays.asList("client", "server").contains(console.toLowerCase(Locale.ROOT))) {
-                           serv = "server".equals(console.toLowerCase(Locale.ROOT));
-                           break;
+                        if (console.equals("")) {
+                            scanner.nextLine();
+                            continue;
+                        }
+                        if (Arrays.asList("client", "server").contains(console.toLowerCase(Locale.ROOT))) {
+                            serv = "server".equals(console.toLowerCase(Locale.ROOT));
+                            break;
                         }
                     }
-                    if(serv) {
-                        while (true) {
-                            String command = ConsoleUtil.nextLine("server");
-                            if(command.equals("")) {
-                                break;
-                            }
-                            String[] split = command.split(" ");
-                            if(serverCommandMap.containsKey(split[0])) {
-                                try {
-                                    serverCommandMap.get(split[0]).run(removeFirstElement(split));
-                                } catch (Throwable throwable) {
-                                    System.err.println(new Translation("console.command.error").format(split[0]));
-                                    throwable.printStackTrace();
-                                }
-                            } else {
-                                System.out.println(new Translation("console.command.notFound").format(split[0]));
-                            }
+                } else {
+                    serv = mode.hasServer() && !mode.hasClient();
+                }
+                if(serv) {
+                    System.out.println(new Translation("console.server.welcome"));
+                    while (true) {
+                        String command = ConsoleUtil.nextLine("server");
+
+                        if(command.equals("")) {
+                            scanner.nextLine();
+                            continue;
                         }
-                    } else {
-                        while (true) {
-                            String command = ConsoleUtil.nextLine("client");
-                            if(command.equals("")) {
-                                break;
+
+                        String[] split = command.split(" ");
+                        if(split[0].equals("commands")) {
+                            for (String s : serverCommandMap.keySet()) {
+                                System.out.println(ConsoleColor.LIGHT_BLUE+s+ConsoleColor.RESET);
                             }
-                            String[] split = command.split(" ");
-                            if(clientCommandMap.containsKey(split[0])) {
-                                try {
-                                    clientCommandMap.get(split[0]).run(removeFirstElement(split));
-                                } catch (Throwable throwable) {
-                                    System.err.println(new Translation("console.command.error").format(split[0]));
-                                    throwable.printStackTrace();
-                                }
-                            } else {
-                                System.out.println(new Translation("console.command.notFound").format(split[0]));
+                            System.out.println(ConsoleColor.LIGHT_BLUE+"exit"+ConsoleColor.RESET);
+                            continue;
+                        }
+                        if(split[0].equals("exit")) {
+                            break;
+                        }
+                        if(serverCommandMap.containsKey(split[0])) {
+                            try {
+                                serverCommandMap.get(split[0]).run(removeFirstElement(split));
+                            } catch (Throwable throwable) {
+                                System.err.println(new Translation("console.command.error").format(split[0]));
+                                throwable.printStackTrace();
                             }
+                        } else {
+                            System.out.println(new Translation("console.command.notFound").format(split[0]));
+                        }
+                    }
+                } else {
+                    System.out.println(new Translation("console.client.welcome"));
+                    while (true) {
+                        String command = ConsoleUtil.nextLine("client");
+
+                        if(command.equals("")) {
+                            scanner.nextLine();
+                            continue;
+                        }
+
+                        String[] split = command.split(" ");
+                        if(split[0].equals("commands")) {
+                            for (String s : clientCommandMap.keySet()) {
+                                System.out.println(ConsoleColor.LIGHT_BLUE+s+ConsoleColor.RESET);
+                            }
+                            System.out.println(ConsoleColor.LIGHT_BLUE+"exit"+ConsoleColor.RESET);
+                            continue;
+                        }
+                        if(split[0].equals("exit")) {
+                            break;
+                        }
+                        if(clientCommandMap.containsKey(split[0])) {
+                            try {
+                                clientCommandMap.get(split[0]).run(removeFirstElement(split));
+                            } catch (Throwable throwable) {
+                                System.err.println(new Translation("console.command.error").format(split[0]));
+                                throwable.printStackTrace();
+                            }
+                        } else {
+                            System.out.println(new Translation("console.command.notFound").format(split[0]));
                         }
                     }
                 }
@@ -100,13 +155,6 @@ public class ConsoleThread extends Thread {
     public static void registerBoth(Command command) {
         registerClient(command);
         registerServer(command);
-    }
-
-    static {
-        registerBoth(new StopCommand());
-
-        registerServer(new ListDevicesCommand());
-        registerServer(new ListRoomsCommand());
     }
 
     private static String[] removeFirstElement(String[] arr) {

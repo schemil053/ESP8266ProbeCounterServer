@@ -10,14 +10,15 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class EJFrame extends JFrame {
-    public EJFrame() {
-        this("EJFrame");
-    }
-
     private BufferedImage background = null;
     private final List<Consumer<Graphics>> a = new ArrayList<>();
     private final List<Consumer<Graphics>> b = new ArrayList<>();
     private final JComponent component;
+    private Point mouse = null;
+
+    public EJFrame() {
+        this("EJFrame");
+    }
 
     public void setBG(Color color) {
         BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -96,7 +97,6 @@ public class EJFrame extends JFrame {
         return component;
     }
 
-    private Point mouse = null;
 
     public final Point getMouse() {
         return mouse;
@@ -148,8 +148,6 @@ public class EJFrame extends JFrame {
 
     public void update() {
         revalidate();
-      //  invalidate();
-      //  validate();
         repaint();
     }
 }

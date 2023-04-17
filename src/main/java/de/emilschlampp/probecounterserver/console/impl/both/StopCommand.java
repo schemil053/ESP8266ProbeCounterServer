@@ -1,4 +1,4 @@
-package de.emilschlampp.probecounterserver.console.impl;
+package de.emilschlampp.probecounterserver.console.impl.both;
 
 import de.emilschlampp.probecounterserver.console.Command;
 

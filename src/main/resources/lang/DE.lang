@@ -61,8 +61,14 @@ Teste Farben...
 =colors.test
 Dies ist ein Test
 #
+=console.not.available
+%red%Die Konsole ist nicht verfügbar. Bitte überprüfe alle Einstellungen und deine Terminalumgebung.
 =console.choose
 Wähle deine Konsole zwischen %light_red%client %reset%oder %light_red%server.
+=console.server.welcome
+%LIGHT_GREEN%Willkommen in der Server-Konsole. Tippe 'commands' für eine Liste an Befehlen.
+=console.client.welcome
+%LIGHT_GREEN%Willkommen in der Client-Konsole. Tippe 'commands' für eine Liste an Befehlen.
 =console.command.notFound
 Befehl % nicht gefunden!
 =console.command.error

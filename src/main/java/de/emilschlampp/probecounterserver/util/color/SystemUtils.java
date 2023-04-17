@@ -3,6 +3,11 @@ package de.emilschlampp.probecounterserver.util.color;
 import de.emilschlampp.probecounterserver.Launcher;
 
 public class SystemUtils {
+    private static boolean accept = false;
+    private static boolean checked = false;
+    private static boolean i = false;
+
+
     public enum OS {
         WINDOWS, LINUX, MAC, SOLARIS
     }
@@ -26,8 +31,6 @@ public class SystemUtils {
         return os;
     }
 
-    private static boolean accept = false;
-    private static boolean checked = false;
 
     public static boolean acceptColors() {
         if(!checked) {
@@ -41,8 +44,6 @@ public class SystemUtils {
         }
         return accept && Launcher.getConfig().getBoolean("console-colors");
     }
-
-    private static boolean i = false;
 
     public static void init() {
         if(i) { return; }

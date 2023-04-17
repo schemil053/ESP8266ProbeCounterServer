@@ -49,13 +49,17 @@ public enum ConsoleColor {
 
     ConsoleColor(String a) {
         char character = 27;
-        this.a = character+a;
+        this.a = (character+a).replace("%chr%", character+"");
     }
 
     private final String a;
     @Override
     public String toString() {
         return a;
+    }
+
+    public boolean contains(String a) {
+        return a.contains(this.a);
     }
 
     public static String stripColor(String text) {

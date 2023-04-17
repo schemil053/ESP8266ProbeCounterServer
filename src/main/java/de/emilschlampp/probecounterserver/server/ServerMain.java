@@ -15,6 +15,9 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class ServerMain implements Runnable {
+    public static final Map<String, Integer> map = new HashMap<>();
+    public static final Map<String, Map<String, Integer>> devicesInRoom = new HashMap<>();
+
     SConfig config = Launcher.getConfig();
     @Override
     public void run() {
@@ -51,8 +54,6 @@ public class ServerMain implements Runnable {
         }
     }
 
-    public static final Map<String, Integer> map = new HashMap<>();
-    public static final Map<String, Map<String, Integer>> devicesInRoom = new HashMap<>();
 
     private void handleClient(Socket socket) throws Throwable {
         if(ConsoleThread.shouldLog) {
