@@ -11,7 +11,6 @@ import de.emilschlampp.probecounterserver.util.SConfig;
 import de.emilschlampp.probecounterserver.util.color.ConsoleColor;
 import de.emilschlampp.probecounterserver.util.lang.Translation;
 
-import java.lang.management.ManagementFactory;
 import java.util.*;
 
 public class ConsoleThread extends Thread {
@@ -34,15 +33,11 @@ public class ConsoleThread extends Thread {
         SConfig config = Launcher.getConfig();
         config.setDefault("mode", Mode.SERVER.name(), config.getFile().isFile());
 
-        Mode mode = Mode.UNKNOWN;
+        Mode mode = Launcher.getMode();
 
         boolean errorwritten = false;
 
-        try {
-            mode = Mode.valueOf(config.getString("mode"));
-        } catch (IllegalArgumentException ignored) {}
-
-        long start = ManagementFactory.getRuntimeMXBean().getStartTime();
+        long start = System.currentTimeMillis();
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -51,7 +46,7 @@ public class ConsoleThread extends Thread {
             try {
                 line = scanner.nextLine();
             } catch (Exception exception) {
-                if(System.currentTimeMillis() > start+500) {
+                if(System.currentTimeMillis() < start+100) {
                     if (!errorwritten) {
                         System.err.println(new Translation("console.not.available"));
                         errorwritten = true;
@@ -62,11 +57,9 @@ public class ConsoleThread extends Thread {
 
 
             if(!mode.hasClient() && !mode.hasServer()) {
-                if(System.currentTimeMillis() > start+500) {
-                    if (!errorwritten) {
-                        System.err.println(new Translation("console.not.available"));
-                        errorwritten = true;
-                    }
+                if (!errorwritten) {
+                    System.err.println(new Translation("console.not.available"));
+                    errorwritten = true;
                 }
                 continue;
             }

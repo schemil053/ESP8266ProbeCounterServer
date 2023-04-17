@@ -6,6 +6,7 @@ import de.emilschlampp.probecounterserver.console.ConsoleThread;
 import de.emilschlampp.probecounterserver.util.EJFrame;
 import de.emilschlampp.probecounterserver.util.Mode;
 import de.emilschlampp.probecounterserver.util.SConfig;
+import de.emilschlampp.probecounterserver.util.Values;
 import de.emilschlampp.probecounterserver.util.lang.Translation;
 
 import javax.imageio.ImageIO;
@@ -154,6 +155,9 @@ public class SetupWindow {
                 if(mode.hasServer()) {
                     try {
                         Integer.parseInt(portField.getText());
+                        if(Integer.parseInt(portField.getText()) < 1 ||  Integer.parseInt(portField.getText()) > Values.maxPort) {
+                            throw new IllegalArgumentException("");
+                        }
                     } catch (Exception exception) {
                         JOptionPane.showMessageDialog(frame, new Translation("window.setup.invalidPort").toString());
                         return;
